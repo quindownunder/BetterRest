@@ -10,29 +10,6 @@ import SwiftUI
 
 struct ContentView: View {
         
-    func calculateBedtime() {
-        let model = SleepCalculator()
-        
-        let components = Calendar.current.dateComponents([.hour, .minute],from: wakeUp)
-        let hour = (components.hour ?? 0) * 60 * 60
-        let minute = (components.minute ?? 0) * 60
-        
-        do {
-            let prediction = try model.prediction(wake: Double(hour + minute), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
-            
-            let sleepTime = wakeUp - prediction.actualSleep
-            
-            let formatter = DateFormatter()
-            formatter.timeStyle = .short
-            alertMesssage = formatter.string(from: sleepTime)
-            alertTitle = "Your ideal bedtime is.."
-            
-        } catch {
-            alertTitle = "Error"
-            alertMesssage = "Sorry, something went wrong"
-        }
-        showingAlert = true
-    }
     
     static var defaultWakeTime: Date {
         var components = DateComponents()

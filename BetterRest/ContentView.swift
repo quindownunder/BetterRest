@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import CoreML
 
 struct ContentView: View {
         
@@ -22,25 +23,29 @@ struct ContentView: View {
         
         var result = ""
         
-        let model = SleepCalculator()
-        
-        let components = Calendar.current.dateComponents([.hour, .minute],from: wakeUp)
-        let hour = (components.hour ?? 0) * 60 * 60
-        let minute = (components.minute ?? 0) * 60
-        
         do {
-            let prediction = try model.prediction(wake: Double(hour + minute), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
+            let model: SleepCalculator = try SleepCalculator(configuration: MLModelConfiguration())
             
-            let sleepTime = wakeUp - prediction.actualSleep
+            let components = Calendar.current.dateComponents([.hour, .minute],from: wakeUp)
+            let hour = (components.hour ?? 0) * 60 * 60
+            let minute = (components.minute ?? 0) * 60
             
-            let formatter = DateFormatter()
-            formatter.timeStyle = .short
-            result = formatter.string(from: sleepTime)
-            
+            do {
+                let prediction = try model.prediction(wake: Double(hour + minute), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
+                
+                let sleepTime = wakeUp - prediction.actualSleep
+                
+                let formatter = DateFormatter()
+                formatter.timeStyle = .short
+                result = formatter.string(from: sleepTime)
+                
+            } catch {
+                result = "error"
+            }
         } catch {
             result = "error"
         }
-        return result
+            return result
     }
     
     @State private var wakeUp = defaultWakeTime
@@ -57,7 +62,7 @@ struct ContentView: View {
                     
                     DatePicker("Please enter a time", selection: $wakeUp, displayedComponents: .hourAndMinute)
                     .labelsHidden()
-                    .datePickerStyle(WheelDatePickerStyle())
+                    //.datePickerStyle(WheelDatePickerStyle())
                 }
                 
                 Section(header: Text("Desired amount of sleep")) {
